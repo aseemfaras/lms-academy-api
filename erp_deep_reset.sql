@@ -1,0 +1,61 @@
+-- DEEP RESET ERP DATABASE SETUP
+-- 1. DELETE EVERYTHING (Clean Slate)
+DROP TABLE IF EXISTS enrollments CASCADE;
+DROP TABLE IF EXISTS modules CASCADE;
+DROP TABLE IF EXISTS courses CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+
+-- Also delete the OLD tables from previous versions
+DROP TABLE IF EXISTS login_users CASCADE;
+DROP TABLE IF EXISTS login_users_user_permissions CASCADE;
+DROP TABLE IF EXISTS login_users_groups CASCADE;
+
+-- 2. CREATE NEW ERP TABLES
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    password VARCHAR(128) NOT NULL,
+    last_login TIMESTAMP WITH TIME ZONE,
+    is_superuser BOOLEAN DEFAULT FALSE,
+    username VARCHAR(150) UNIQUE NOT NULL,
+    first_name VARCHAR(150),
+    last_name VARCHAR(150),
+    email VARCHAR(255) UNIQUE NOT NULL,
+    full_name VARCHAR(200),
+    role VARCHAR(20) DEFAULT 'STUDENT',
+    is_staff BOOLEAN DEFAULT FALSE,
+    is_active BOOLEAN DEFAULT TRUE,
+    date_joined TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE courses (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    trainer_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE modules (
+    id SERIAL PRIMARY KEY,
+    course_id INTEGER REFERENCES courses(id) ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    video_url VARCHAR(500),
+    notes_url VARCHAR(500),
+    "order" INTEGER DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE enrollments (
+    id SERIAL PRIMARY KEY,
+    student_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    course_id INTEGER REFERENCES courses(id) ON DELETE CASCADE,
+    status VARCHAR(20) DEFAULT 'ACTIVE',
+    enrolled_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 3. VERIFICATION (This will show in your Data Output tab)
+SELECT tablename 
+FROM pg_catalog.pg_tables 
+WHERE schemaname = 'public' 
+ORDER BY tablename;
