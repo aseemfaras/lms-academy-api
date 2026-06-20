@@ -80,15 +80,23 @@ ROOT_URLCONF = 'config.urls'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
 }
 
-# CORS Config – allow only the Vercel frontend domain (no wildcard)
-CORS_ALLOWED_ORIGINS = [
+# CORS — browser calls backend directly from the React frontend
+_cors_defaults = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
     "https://lms-academy-webapp-git-dev-aideas-technologies-projects.vercel.app",
 ]
+_extra_cors = env.list('CORS_ALLOWED_ORIGINS', default=[])
+CORS_ALLOWED_ORIGINS = list(dict.fromkeys(_cors_defaults + _extra_cors))
 CORS_ALLOW_CREDENTIALS = True
-# Allow common API headers (e.g. Authorization for JWT) and methods
 CORS_ALLOW_HEADERS = [
     "accept",
     "accept-encoding",
@@ -108,10 +116,7 @@ CORS_ALLOW_METHODS = [
     "PUT",
 ]
 
-# CSRF trusted origins for frontend (required when frontend and backend are on different origins)
-CSRF_TRUSTED_ORIGINS = [
-    "https://lms-academy-webapp-git-dev-aideas-technologies-projects.vercel.app",
-]
+CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS.copy()
 
 TEMPLATES = [
     {

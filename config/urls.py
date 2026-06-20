@@ -26,5 +26,5 @@ urlpatterns = [
     path('api/', include('trainers.urls')),
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Serve uploaded media (course images, recordings) at /media/
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
